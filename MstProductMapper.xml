@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.internous.garnet.model.mapper.MstProductMapper">
+	
+	<select id="findByProductNameAndCategoryId" resultType="jp.co.internous.garnet.model.domain.MstProduct">
+	SELECT * FROM mst_product mp
+
+		<where>
+			
+    		<if test="searchWord != null and categoryId == 0">
+    			<foreach item="searchitem" collection="searchWord" open="(" close=")" separator="OR">
+    				(mp.product_name like '%${searchitem}%')
+    			</foreach>
+    		</if>
+
+    		<if test="searchWord == null and categoryId != 0">
+    			mp.category_id = #{categoryId}
+    		</if>
+    		
+    		<if test="searchWord != null and categoryId != 0">
+    			mp.category_id = #{categoryId} AND 
+    		    <foreach item="searchitem" collection="searchWord" open="(" close=")" separator="OR">
+    				(mp.product_name like '%${searchitem}%')
+    		    </foreach>
+    		</if>
+    		
+  		</where>
+	</select>
+	
+	<select id="findById" resultType="jp.co.internous.garnet.model.domain.MstProduct">
+	SELECT * FROM mst_product mp WHERE mp.id = #{id}
+	</select>
+	
+</mapper>

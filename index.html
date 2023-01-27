@@ -1,0 +1,98 @@
+<!DOCTYPE html><!--@author NormalizedNorthward117-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+
+<link href="/css/reset.css" th:href="@{/css/reset.css}" rel="stylesheet" />
+<link href="/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+
+<title>VEGEFRU!</title>
+</head>
+<body>
+
+<header th:insert="fragments/page_header::pageHeader"></header>
+
+<main>
+	<div class="container">
+		<!--IndexControllerに送る検索条件-->
+		<form name="SearchProduct" action="/garnet/searchItem" >
+			カテゴリ
+			<select name="categoryId" id="category">
+				<option value="0"></option>
+				<option 
+					th:each = "CategoryPulldown: ${mstCategory}"
+					th:value= "${CategoryPulldown.id}"
+					th:text= "${CategoryPulldown.categoryName}"
+					th:selected= "${CategoryPulldown.id == categorySelect}"
+				>
+				</option>
+			</select>
+			商品名（部分一致）
+			<input type="text" name="searchWord" th:value="${searchWord}"/>
+			<button type="submit">検索</button>
+		</form><!--検索条件ここまで-->
+		
+		<!--検索結果0件：表示-->
+		<div class="noDataHidden" th:if="${mstProduct.size() <= 0}">
+			<p class="info">検索結果はありません。</p>
+		</div>
+		
+		<!--検索結果で更新　（初期遷移：全表示）-->
+		<table class="top" th:if="${mstProduct.size() > 0}">
+			<thread>
+			<tr>
+				<th>画像</th><th>商品名</th><th>価格(円)</th><th>個数</th><th>カート</th>
+			</tr>
+			</thread>
+			<tbody>
+				<tr th:each="Product: ${mstProduct}">
+					<td class="image" >
+						<!--画像クリック：商品詳細画面へ遷移-->
+						<a th:href="@{/garnet/product/{id}(id=${Product.id})}">
+							<img th:src="${Product.imageFullPath}" style= "width: 100%;" />
+						</a>
+					<td class="productName">
+						<!--リンククリック：商品詳細画面へ遷移-->
+						<a th:href="@{/garnet/product/{id}(id=${Product.id})}">
+							<label th:text="${Product.productName}" />
+						</a>
+					</td>
+					<td class="number" th:text="${Product.price}" />
+					<td class="componentTd"><input type="number" id="productCount" class="countNumber" value="0" min="0" /></td>
+					<input type="hidden" id="productId" name="productId" th:value="${Product.id}"/><!--送信用商品ID-->
+					<td class="componentTd">
+						<button class="cartButton"><!--JavaScriptでカート追加処理-->
+							追加
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</main>
+
+<script>//					●JavaScriptここから●
+
+//	 ページ遷移時
+$( () => {
+		//カート追加処理
+		$('.cartButton').on('click', makeCartData);
+		
+});
+
+//　「購入」ボタンクリック時
+let makeCartData = (event) => {
+	
+	//table捕捉
+	let tr = $(event.target).parent().parent();
+	
+	let productId = $(tr).find('#productId').val();
+	let productCount = $(tr).find('#productCount').val();
+	
+	addCart(productId, productCount);
+};
+
+</script><!--				●JavaScript終わり●-->
+
+</body>
+</html>
